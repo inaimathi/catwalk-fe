@@ -13,8 +13,8 @@
   :hooks [leiningen.cljsbuild]
   :plugins [[lein-cljsbuild "1.1.7"]]
   :cljsbuild {:builds
-              [{:source-paths ["src/catwalk_fe/front_end"]
-                :compiler {:output-to "resources/core.js"
+              [{:source-paths ["src/catwalk_fe"]
+                :compiler {:output-to "../catwalk/static/core.js"
                            :optimizations :whitespace
                            :pretty-print true}
                 :jar true}]}
