@@ -52,25 +52,31 @@
                   ;; TODO - silence encoding
                   (str ln))
                 (if-let [child-jobs (get child-map ln)]
-                  [:ul {:class "list-group"}
-                   (map
-                    (fn [ln-job]
-                      [:li {:class "list-group-item"}
-                       [:span
-                        {:class (str "mx-2 badge "
-                                     (case (:status ln-job)
-                                       "CANCELLED" "bg-warning text-dark"
-                                       "ERRORED" "bg-danger"
-                                       "COMPLETE" "bg-success"
-                                       "bg-primary"))}
-                        (or (:status ln-job) "STARTED")]
-                       [:span {:class "mx-2 badge bg-primary"} (-> ln-job :input :voice)]
-                       (when (:output ln-job)
-                         [:button
-                          {:class "btn btn-primary bg-primary"}
-                          "Play"]
-                         [:pre (:output ln-job)])])
-                    child-jobs)])])
+                  (map
+                   (fn [ln-job]
+                     ^{:key (gensym)}
+                     [:li {:class "list-group-item"}
+                      [:span
+                       {:class (str "mx-2 badge "
+                                    (case (:status ln-job)
+                                      "CANCELLED" "bg-warning text-dark"
+                                      "ERRORED" "bg-danger"
+                                      "COMPLETE" "bg-success"
+                                      "bg-primary"))}
+                       (or (:status ln-job) "STARTED")]
+                      [:span {:class "mx-2 badge bg-primary"} (-> ln-job :input :voice)]
+                      (when (:output ln-job)
+                        ;; [:button
+                        ;;  {:class "btn btn-primary bg-primary"}
+                        ;;  "Play"]
+                        (let [lst-id (str (gensym))]
+                          (map
+                           (fn [wav]
+                             [:li {:class "list-group-item"}
+                              [:input {:class "form-check-input me-1" :type "radio" :value "" :name lst-id}]
+                              [:audio {:controls true} [:source {:src wav :type "audio/wav"}]]])
+                           (:output ln-job))))])
+                   child-jobs))])
              (-> job :output :script))]])]))
    jobs))
 
