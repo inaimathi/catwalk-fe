@@ -50,12 +50,9 @@
   [:div {:class "container p-5"}
    [navbar]
    (case @SECTION
-     :blogcast
-     (let [bc-jobs (->> @model/JOB-MAP sort (map second) (filter #(= "blogcast" (:job_type %))))]
-       (bc/interface bc-jobs))
-
-     :jobs
-     (jobs/interface))])
+     :blogcast (bc/interface)
+     :jobs (jobs/interface)
+     [:div [:h1 (str "TODO - " @SECTION)]])])
 
 (defn -key-from-event [e]
   (let [k (.-key e)

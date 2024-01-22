@@ -85,7 +85,6 @@
              [:option {:value voice} voice]) @model/VOICES)]])))
 
 (defn job-interface [job]
-  (.log js/console "JOB-INTERFACE STATE SETUP")
   (let [job-state (r/atom (-blogcast-job-state job))
         input-id (str "input-" (gensym))
         output-id (str "output-"(gensym))]
@@ -139,10 +138,10 @@
                   (if child-jobs (-audio-list ln child-jobs job-state)))))
              (-> job :output :script)))]])])))
 
-(defn interface [jobs]
+(defn interface []
   (doall
    (map
     (fn [job]
       ^{:key (str "blogcast-job-interface-" (:id job))}
       [job-interface job])
-    jobs)))
+    (->> @model/JOB-MAP sort (map second) reverse (filter #(= "blogcast" (:job_type %)))))))
