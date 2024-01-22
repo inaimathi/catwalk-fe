@@ -32,28 +32,42 @@
       (.then #(js->clj % :keywordize-keys true))
       (.then callback)))
 
-(defn job-tree [callback] (-api-call "/v1/job" callback))
+;;;;;;;;;; Jobs interface
+(defn list-jobs [callback]
+  (-api-call "/v1/job" callback))
 
-(defn available-voices [callback] (-api-call "/v0/audio/tts" callback))
-
-(defn blogcast-job [url voice callback]
-  (-api-call
-   "/v1/job" callback :method "POST"
-   :data (-form-encoded {:type "blogcast" :input {:url url :voice voice :k 1}})))
-
-(defn blogcast-line [parent-id text voice callback]
-  (-api-call
-   "/v1/job" callback :method "POST"
-   :data (-form-encoded {:type "tts" :parent parent-id :input {:text text :voice voice :k 1}})))
+(defn get-job [job-id callback]
+  (-api-call (str "/v1/job/" job-id) callback))
 
 (defn retry-job [job-id callback]
   (-api-call (str "/v1/job/" job-id) callback :method "PUT"))
+
+(defn cancel-job [job-id callback]
+  (-api-call (str "/v1/job/" job-id) callback :method "DELETE"))
 
 (defn update-job [job-id status output callback]
   (-api-call
    (str "/v1/job/" job-id) callback
    :method "POST"
    :data (-form-encoded {:status status :output output})))
+
+(defn create-job [parent type input callback]
+  (let [data (if parent {:type type :parent parent :input input} {:type type :input input})]
+    (-api-call
+     "/v1/job" callback :method "POST"
+     :data (-form-encoded data))))
+
+;;;;;;;;;; Voices interface
+(defn available-voices [callback] (-api-call "/v0/audio/tts" callback))
+
+(defn blogcast-job [url voice callback]
+  (create-job nil "blogcast" {:url url :voice voice :k 1} callback))
+
+(defn blogcast-line-job [parent-id text voice callback]
+  (create-job parent-id "tts" {:text text :voice voice :k 1} callback))
+
+(defn tts-job [text voice callback]
+  (create-job nil "tts" {:text text :voice voice :k 1} callback))
 
 (defn audio-stitch [stitch-list callback]
   (-api-call

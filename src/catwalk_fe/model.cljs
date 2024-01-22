@@ -6,7 +6,9 @@
 
             [catwalk-fe.api :as api]))
 
-(defonce APP-STATE (r/atom {:job-tree []}))
+(defonce JOB-MAP (r/atom {}))
+
+(defonce APP-STATE (r/atom {:job-map {}}))
 (defonce VOICES (r/atom []))
 
 (defn swap-in! [atom ks val]

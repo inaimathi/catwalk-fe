@@ -73,7 +73,7 @@
                                          (:script (:output job))))
                                (fn [data]
                                  (.log js/console "UPDATED PARENT JOB" (clj->js data))
-                                 (api/blogcast-line
+                                 (api/blogcast-line-job
                                   (:id job) new-line (or (-> job :input :voice) "leo")
                                   (fn [data] (.log js/console "RESPONSE FROM NEW JOB" (clj->js data)))))))}
         "Record"]
@@ -139,5 +139,10 @@
                   (if child-jobs (-audio-list ln child-jobs job-state)))))
              (-> job :output :script)))]])])))
 
-(defn jobs-interface [jobs]
-  (doall (map (fn [job] [job-interface job])jobs)))
+(defn interface [jobs]
+  (doall
+   (map
+    (fn [job]
+      ^{:key (str "blogcast-job-interface-" (:id job))}
+      [job-interface job])
+    jobs)))
