@@ -21,7 +21,7 @@
                          :on-click #(reset! SECTION section)}
                      label]])]
     (fn []
-      [:nav {:class "navbar navbar-expand-lg navbar-light bg-light p-3 fixed-top"}
+      [:nav {:class "navbar navbar-expand-lg navbar-light bg-light p-3 sticky-top"}
        [:a {:class "navbar-brand" :href "#"} "Catwalk"]
        [:ul {:class "navbar-nav me-auto mb-2 mb-lg-0"}
         (nav-item :blogcast "Blogcast")
