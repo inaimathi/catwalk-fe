@@ -11,8 +11,13 @@
 (defonce APP-STATE (r/atom {:job-map {}}))
 (defonce VOICES (r/atom []))
 
-(defn swap-in! [atom ks val]
-  (swap! atom assoc-in ks val))
+(defn children-of [job-id]
+  (->> @JOB-MAP sort
+       (map second)
+       (filter #(= job-id (:parent_job %)))))
 
-(defn swupdate-in! [atom ks f]
-  (swap! atom update-in ks f))
+(defn children-with-text [job-id text]
+  (->> @JOB-MAP sort
+       (map second)
+       (filter #(and (= job-id (:parent_job %))
+                     (= text (:text (:input %)))))))

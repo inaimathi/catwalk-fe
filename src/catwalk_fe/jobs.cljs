@@ -29,6 +29,7 @@
                                 (fn [data] (.log js/console "CANCELLED" (clj->js data))))}
            "Cancel"])]
        [:td (str (:id job))]
+       [:td (str (:parent_job job))]
        [:td [:code (:job_type job)]]
        [:td
         [:span {:class (str "input-group-text badge align-middle "
@@ -59,6 +60,7 @@
     [:tr
      [:th {:scope "col"} ""]
      [:th {:scope "col"} "id"]
+     [:th {:scope "col"} "parent"]
      [:th {:scope "col"} "type"]
      [:th {:scope "col"} "status"]
      [:th {:scope "col"} "input"]

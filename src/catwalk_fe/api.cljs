@@ -3,9 +3,7 @@
             [clojure.pprint :as pprint]
 
             [reagent.core :as r]
-            [reagent.dom :as rd]
-
-            [catwalk-fe.blogcast :as bc]))
+            [reagent.dom :as rd]))
 
 (defn -form-encoded [m]
   (->> m
@@ -45,11 +43,13 @@
 (defn cancel-job [job-id callback]
   (-api-call (str "/v1/job/" job-id) callback :method "DELETE"))
 
-(defn update-job [job-id status output callback]
-  (-api-call
-   (str "/v1/job/" job-id) callback
-   :method "POST"
-   :data (-form-encoded {:status status :output output})))
+(defn update-job [job-id callback & {:keys [status output]}]
+  (let [data (->> {:status status :output output} (filter second) (into {}))]
+    (if (not (empty? data))
+      (-api-call
+       (str "/v1/job/" job-id) callback
+       :method "POST"
+       :data (-form-encoded data)))))
 
 (defn create-job [parent type input callback]
   (let [data (if parent {:type type :parent parent :input input} {:type type :input input})]
