@@ -46,9 +46,13 @@
                                 (reset! audio-job (:id data)))))}
                "ReRecord"]]
          [:td
-          [:textarea
-           {:class "form-control":value @line-text :style {:height "100%" :width "100%"}
-            :on-change #(reset! line-text (.-value (.-target %)))}]]
+          [:div {:class "grow-wrap" :style {:display "grid"}}
+           [:textarea
+            {:class "form-control":value @line-text :style {:resize "none" :overflow "hidden" :grid-area "1 / 1 / 2 / 2" :font "inherit" :padding "0.5rem" :border "1px solid black"}
+             :on-change #(reset! line-text (.-value (.-target %)))}]
+           [:div {:class "textarea-ghost"
+                  :style {:grid-area "1 / 1 / 2 / 2" :font "inherit" :padding "0.5rem" :border "1px solid black" :white-space "pre-wrap" :visibility "hidden"
+                          :content "attr(data-replicated-value) \" \""}} @line-text]]]
          [:td [:select {:class "form-select" :value @picked-voice :on-change #(reset! picked-voice (.-value (.-target %)))}
                (map (fn [voice]
                       ^{:key (str "voice-" voice "-" (gensym))}
