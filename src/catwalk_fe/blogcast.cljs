@@ -10,7 +10,6 @@
 
 (def BLOGCAST-KEYMAP {})
 (def CURRENT-CAST (r/atom nil))
-(def DEFERRED-EDITS (r/atom []))
 
 (defn remove-by-ix [vec ix]
   (into (subvec vec 0 ix) (subvec vec (inc ix))))
@@ -95,8 +94,8 @@
    [:div {:class "input-group my-2"}
     [:button {:class "btn btn-primary form-input" :on-click -close!} "Close"]
     [:span {:class "input-group-text"}
-     "URL: " [:a {:href (:url (:input job))} (:url (:input job))]
-     " Voice: " (:voice (:input job))]
+     [:a {:href (:url (:input job)) :target "BLANK"} (str (:url (:input job)) " ")]
+     " -- voiced by " (:voice (:input job))]
     (when @CURRENT-STITCHED
       [:span {:class "input-group-text"} [:audio {:controls true} [:source {:src @CURRENT-STITCHED :type "audio/wav"}]]])
     (when (= "COMPLETE" (:status job))
@@ -148,7 +147,9 @@
        [:td [:button {:class "btn btn-primary form-input" :on-click #(-init! job)}
              "Edit"]]
        [:td (:id job)] [:td (:status job)]
-       [:td (str (:input job))]
+       [:td
+        [:a {:href (:url (:input job)) :target "BLANK"} (str (:url (:input job)) " ")]
+         " -- voiced by " (:voice (:input job))]
        [:td {:on-click #(swap! show-script not)}
         [:ul {:class "list-group"}
          (map
@@ -158,9 +159,7 @@
           (let [script-lines (->> job :output :script (filter string?))]
             (if @show-script
               script-lines
-              (conj (into [] (take 5 script-lines)) "..."))))]
-        ;; [:pre (with-out-str (pprint/pprint (:output job)))]
-        ]])))
+              (conj (into [] (take 5 script-lines)) "..."))))]]])))
 
 (defn toolbar []
   (let [cast-url (r/atom "")
@@ -186,11 +185,7 @@
           {:class "btn btn-outline-success mx-2" :type "input"
            :on-click #(do (.preventDefault %)
                           (.log js/console "SAVING")
-                          (-api-update (fn [data] (.log js/console "GOT BACK DATA - " (clj->js data))))
-                          ;; (api/blogcast-job
-                          ;;  @cast-url @cast-voice
-                          ;;  (fn [data] (.log js/console "GOT BACK DATA - " data)))
-                          )}
+                          (-api-update (fn [data] (.log js/console "GOT BACK DATA - " (clj->js data)))))}
           "Save"])])))
 
 (defn interface []
