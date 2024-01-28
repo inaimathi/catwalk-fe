@@ -14,6 +14,10 @@
 (defn remove-by-ix [vec ix]
   (into (subvec vec 0 ix) (subvec vec (inc ix))))
 
+;; (defn scroll-to [el]
+;;   (.scrollIntoView el true)
+;;   (.scrollBy js/window 0 (- (.-clientHeight el))))
+
 (defn edit-line-interface [update-state remove-line audio-job-id parent-id ix default-voice default-check line]
   (let [picked-voice (r/atom default-voice)
         line-text (r/atom line)
@@ -22,7 +26,7 @@
         update! (fn [] (update-state @check @line-text))]
     (fn []
       (if (string? line)
-        [:tr (if @check {:class "table-success"})
+        [:tr (if @check {:class "table-success"} {:class "still-todo"})
          [:td [:button
                {:class "btn btn-primary form-input"
                 :on-click remove-line}
