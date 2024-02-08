@@ -9,7 +9,8 @@
 
 (defn single-job [job]
   (let [expand-input (r/atom false)
-        expand-output (r/atom false)]
+        expand-output (r/atom false)
+        limit 40]
     (fn []
       ^{:key (str "job-row-" (:id job))}
       [:tr
@@ -39,15 +40,13 @@
          (:status job)]]
        [:td
         [:pre {:class "text-start" :style {"cursor" "pointer"} :on-click #(swap! expand-input not)}
-         (let [limit 40
-               inp (with-out-str (pprint/pprint (:input job)))]
+         (let [inp (with-out-str (pprint/pprint (:input job)))]
            (if (or (>= limit (count inp)) @expand-input)
              inp
              (str (subs inp 0 limit) "...")))]]
        [:td
         [:pre {:class "text-start" :style {"cursor" "pointer"} :on-click #(swap! expand-output not)}
-         (let [limit 40
-               outp (with-out-str (pprint/pprint (:output job)))]
+         (let [outp (with-out-str (pprint/pprint (:output job)))]
            (if (or (>= limit (count outp)) @expand-output)
              outp
              (str (subs outp 0 limit) "...")))]]])))
