@@ -105,7 +105,14 @@
      [:a {:href (:url (:input job)) :target "BLANK"} (str (:url (:input job)) " ")]
      " -- voiced by " (:voice (:input job))]
     (when @CURRENT-STITCHED
-      [:span {:class "input-group-text"} [:audio {:controls true} [:source {:src @CURRENT-STITCHED :type "audio/wav"}]]])
+      [:span {:class "input-group-text"} [:audio {:controls true} [:source {:src @CURRENT-STITCHED :type "audio/wav"}]]
+       [:a {:class "btn form-input btn-outline-success rounded-right"
+            :href @CURRENT-STITCHED
+            :download (-> job :input :url
+                          (str/split #"[?#]") first
+                          (str/split #"/") last
+                          (str ".wav"))}
+        "Save"]])
     (when (= "COMPLETE" (:status job))
       [:button {:class "btn btn-primary form-input"
                 :on-click #(let [stitch-list (->> @CURRENT-SCRIPT sort (map second)
@@ -116,7 +123,7 @@
                               (fn [data]
                                 (.log js/console "RETURNED" (clj->js data))
                                 (reset! CURRENT-STITCHED (:file data)))))}
-       "Download"])]
+       "Stitch"])]
    [:div
     [:table {:class "table table-hover"}
      [:thead
