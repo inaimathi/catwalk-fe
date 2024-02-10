@@ -52,7 +52,7 @@
        :data (-form-encoded data)))))
 
 (defn create-job [parent type input callback]
-  (let [data (if parent {:type type :parent parent :input input} {:type type :input input})]
+  (let [data (if parent {:type type :parent_job parent :input input} {:type type :input input})]
     (-api-call
      "/v1/job" callback :method "POST"
      :data (-form-encoded data))))

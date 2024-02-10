@@ -58,8 +58,8 @@
          (.log js/console "PRE" (clj->js @model/JOB-MAP))
          (swap!
           model/JOB-MAP update
-          (:job_id job-update)
-          #(merge % {:id (:job_id job-update)} (select-keys job-update [:job_type :status :input :output])))
+          (:id job-update)
+          #(merge % {:id (:id job-update)} (select-keys job-update [:job_type :status :input :output])))
          (.log js/console "POST" (clj->js @model/JOB-MAP))))))
   (.addEventListener
    (js/document.querySelector "body")
