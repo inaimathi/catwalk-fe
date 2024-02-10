@@ -8,7 +8,8 @@
             [catwalk-fe.api :as api]
             [catwalk-fe.model :as model]
             [catwalk-fe.blogcast :as bc]
-            [catwalk-fe.jobs :as jobs]))
+            [catwalk-fe.jobs :as jobs]
+            [catwalk-fe.tts :as tts]))
 
 (def VERSION "0.0.5")
 
@@ -37,6 +38,7 @@
    (case @SECTION
      :blogcast (bc/interface)
      :jobs (jobs/interface)
+     :tts (tts/interface)
      [:div [:h1 (str "TODO - " @SECTION)]])])
 
 (defn -key-from-event [e]
@@ -56,10 +58,12 @@
        (let [job-update (js->clj (.parse js/JSON (.-data m)) :keywordize-keys true)]
          (.log js/console "GOT WS MESSAGE" (clj->js job-update))
          (.log js/console "PRE" (clj->js @model/JOB-MAP))
-         (swap!
-          model/JOB-MAP update
-          (:id job-update)
-          #(merge % {:id (:id job-update)} (select-keys job-update [:job_type :status :input :output])))
+         (if (= "DELETED" (:status job-update))
+           (swap! model/JOB-MAP dissoc (:id job-update))
+           (swap!
+            model/JOB-MAP update
+            (:id job-update)
+            #(merge % {:id (:id job-update)} (select-keys job-update [:job_type :status :input :output]))))
          (.log js/console "POST" (clj->js @model/JOB-MAP))))))
   (.addEventListener
    (js/document.querySelector "body")

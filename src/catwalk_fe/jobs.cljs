@@ -54,9 +54,10 @@
 (defn child-jobs [parent]
   (let [expand-children (r/atom false)]
     (fn []
+      ^{:key (str "job-interface-" (:id parent) "-" (gensym))}
       [:tr
        [:td]
-       [:td {:colspan 6}
+       [:td {:colSpan 6}
         (let [children (->> @model/JOB-MAP sort (map second) (filter #(= (:id parent) (:parent_job %))))]
           (if (not @expand-children)
             (let [stat-map (frequencies (map :status children))
@@ -93,9 +94,10 @@
     (doall
      (map
       (fn [job]
-        ^{:key (str "job-interface-" (:id job) "-" (gensym))}
         (list
+         ^{:key (str "job-interface-" (:id job) "-" (gensym))}
          [single-job job]
          (when (nil? (:parent_job job))
+           ^{:key (str "job-children-" (:id job) "-" (gensym))}
            [child-jobs job])))
       (->> @model/JOB-MAP sort (map second) (filter #(not (:parent_job %))) reverse)))]])

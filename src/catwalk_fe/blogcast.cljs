@@ -52,7 +52,7 @@
          [:td
           [:div {:class "grow-wrap" :style {:display "grid"}}
            [:textarea
-            {:class "form-control":value @line-text :style {:resize "none" :overflow "hidden" :grid-area "1 / 1 / 2 / 2" :font "inherit" :padding "0.5rem" :border "1px solid black"}
+            {:class "form-control" :value @line-text :style {:resize "none" :overflow "hidden" :grid-area "1 / 1 / 2 / 2" :font "inherit" :padding "0.5rem" :border "1px solid black"}
              :on-change #(reset! line-text (.-value (.-target %)))}]
            [:div {:class "textarea-ghost"
                   :style {:grid-area "1 / 1 / 2 / 2" :font "inherit" :padding "0.5rem" :border "1px solid black" :white-space "pre-wrap" :visibility "hidden"
@@ -156,11 +156,19 @@
         output-id (str "output-"(gensym))
         show-script (r/atom false)]
     (fn []
-      (.log js/console "JOB-INTERFACE RENDERING")
       ^{:key (str "job-" (:id job))}
       [:tr
-       [:td [:button {:class "btn btn-primary form-input" :on-click #(-init! job)}
-             "Edit"]]
+       [:td
+        [:button {:class "btn btn-primary form-input" :on-click #(-init! job)}
+         "Edit"]]
+       [:td
+        [:button
+         {:class "btn btn-primary form-input"
+          :on-click #(api/delete-job
+                      (:id job)
+                      (fn [res]
+                        (.log js/console "GOT RESULT FROM DELETING - " (clj->js res))))}
+         "🗑"]]
        [:td (:id job)] [:td (:status job)]
        [:td
         [:a {:href (:url (:input job)) :target "BLANK"} (str (:url (:input job)) " ")]
@@ -209,6 +217,7 @@
     [:table {:class "table table-hover"}
      [:thead
       [:tr
+       [:th {:scope "col"} ""]
        [:th {:scope "col"} ""]
        [:th {:scope "col"} "id"]
        [:th {:scope "col"} "status"]

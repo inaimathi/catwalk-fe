@@ -43,6 +43,9 @@
 (defn cancel-job [job-id callback]
   (-api-call (str "/v1/job/" job-id) callback :method "DELETE"))
 
+(defn delete-job [job-id callback]
+  (-api-call (str "/v1/job/" job-id) callback :method "DELETE" :data (-form-encoded {:shred true})))
+
 (defn update-job [job-id callback & {:keys [status output]}]
   (let [data (->> {:status status :output output} (filter second) (into {}))]
     (if (not (empty? data))
