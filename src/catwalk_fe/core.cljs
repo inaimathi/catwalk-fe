@@ -58,12 +58,16 @@
        (let [job-update (js->clj (.parse js/JSON (.-data m)) :keywordize-keys true)]
          (.log js/console "GOT WS MESSAGE" (clj->js job-update))
          (.log js/console "PRE" (clj->js @model/JOB-MAP))
-         (if (= "DELETED" (:status job-update))
-           (swap! model/JOB-MAP dissoc (:id job-update))
+         (case (:status job-update)
+           "DELETED" (swap! model/JOB-MAP dissoc (:id job-update))
+           "STARTED" (swap! model/JOB-MAP assoc (:id job-update) job-update)
            (swap!
             model/JOB-MAP update
             (:id job-update)
-            #(merge % {:id (:id job-update)} (select-keys job-update [:job_type :status :input :output]))))
+            #(merge % {:id (:id job-update)}
+                    (select-keys
+                     job-update
+                     [:job_type :status :input :output]))))
          (.log js/console "POST" (clj->js @model/JOB-MAP))))))
   (.addEventListener
    (js/document.querySelector "body")
