@@ -13,7 +13,7 @@
 
 (def VERSION "0.0.5")
 
-(defonce SECTION (r/atom :blogcast))
+(defonce SECTION (r/atom :jobs))
 
 (defn navbar []
   (let [nav-item (fn [section label]
@@ -25,8 +25,8 @@
       [:nav {:class "navbar navbar-expand-lg navbar-light bg-light p-3 sticky-top"}
        [:a {:class "navbar-brand" :href "#"} "Catwalk"]
        [:ul {:class "navbar-nav me-auto mb-2 mb-lg-0"}
-        (nav-item :blogcast "Blogcast")
         (nav-item :jobs "Jobs")
+        (nav-item :blogcast "Blogcast")
         (nav-item :tts "TTS")]
        (when (= @SECTION :blogcast)
          [bc/toolbar])
