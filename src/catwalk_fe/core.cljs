@@ -13,7 +13,7 @@
 
 (def VERSION "0.0.5")
 
-(defonce SECTION (r/atom :jobs))
+(defonce SECTION (r/atom :blogcast))
 
 (defn navbar []
   (let [nav-item (fn [section label]
@@ -27,7 +27,8 @@
        [:ul {:class "navbar-nav me-auto mb-2 mb-lg-0"}
         (nav-item :jobs "Jobs")
         (nav-item :blogcast "Blogcast")
-        (nav-item :tts "TTS")]
+        (nav-item :tts "TTS")
+        (nav-item :transcribe "Transcribe")]
        (when (= @SECTION :blogcast)
          [bc/toolbar])
        [:span {:class "navbar-text mx-5"} VERSION]])))

@@ -37,18 +37,19 @@
                              (swap! check not)
                              (update!))}
                (if @check "x" "✓")]]
-         [:td [:button
-               {:class "btn btn-primary form-input"
-                :on-click #(let [new-ln @line-text
-                                 voice @picked-voice]
-                             (.log js/console "ReRecording" new-ln voice)
-                             (update!)
-                             (api/blogcast-line-job
-                              parent-id new-ln voice
-                              (fn [data]
-                                (.log js/console "RESPONSE FROM NEW JOB" (clj->js data))
-                                (reset! audio-job (:id data)))))}
-               "ReRecord"]]
+         [:td
+          [:button
+           {:class "btn btn-primary form-input"
+            :on-click #(let [new-ln @line-text
+                             voice @picked-voice]
+                         (.log js/console "ReRecording" new-ln voice)
+                         (update!)
+                         (api/blogcast-line-job
+                          parent-id new-ln voice
+                          (fn [data]
+                            (.log js/console "RESPONSE FROM NEW JOB" (clj->js data))
+                            (reset! audio-job (:id data)))))}
+           "ReRecord"]]
          [:td
           [:div {:class "grow-wrap" :style {:display "grid"}}
            [:textarea
@@ -62,7 +63,9 @@
                       ^{:key (str "voice-" voice "-" (gensym))}
                       [:option {:value voice} voice]) @model/VOICES)]]
          [:td (if-let [wav (get-in @model/JOB-MAP [@audio-job :output 0] nil)]
-                [:audio {:controls true} [:source {:src wav :type "audio/wav"}]])]]
+                [:audio {:controls true} [:source {:src wav :type "audio/wav"}]]
+                [:div {:class "spinner-border text-primary" :role "status"}
+                 [:span {:class "visually-hidden"} "Working..."]])]]
         [:tr
          [:td [:button
                {:class "btn btn-primary form-input"
@@ -118,11 +121,13 @@
                 :on-click #(let [stitch-list (->> @CURRENT-SCRIPT sort (map second)
                                                   (map (fn [ln] (or (-> (model/children-with-text (:id job) ln) reverse first (get-in [:output 0])) ln))))]
                              (.log js/console "AUDIO STITCHING" (clj->js stitch-list))
+                             (reset! CURRENT-STITCHED nil)
                              (api/audio-stitch
                               stitch-list
                               (fn [data]
-                                (.log js/console "RETURNED" (clj->js data))
-                                (reset! CURRENT-STITCHED (:file data)))))}
+                                (reset! CURRENT-STITCHED (:file data))
+                                (-api-update
+                                 (fn [data] (.log js/console "GOT BACK DATA - " (clj->js data)))))))}
        "Stitch"])]
    [:div
     [:table {:class "table table-hover"}
@@ -175,6 +180,9 @@
          " -- voiced by " (:voice (:input job))]
        [:td {:on-click #(swap! show-script not)}
         [:ul {:class "list-group"}
+         (if-let [wav (-> job :output :stitched)]
+           [:li {:class "list-group-item"}
+            [:audio {:controls true} [:source {:src wav :type "audio/wav"}]]])
          (map
           (fn [ln]
             ^{:key (str "list-interface-line-" (:id job) "-" (gensym))}
