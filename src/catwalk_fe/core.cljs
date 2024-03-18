@@ -13,7 +13,7 @@
 
 (def VERSION "0.0.5")
 
-(defonce SECTION (r/atom :blogcast))
+(defonce SECTION (r/atom (or (-> (model/current-hash-path) first keyword) :blogcast)))
 
 (defn navbar []
   (let [nav-item (fn [section label]
@@ -89,4 +89,5 @@
    (api/list-jobs #(reset! model/JOB-MAP (->> % :jobs (map (fn [job] [(:id job) job])) (into {}))))
    (api/available-voices #(reset! model/VOICES (:voices %)))
    (.log js/console "Hello from catwalk-fe")
+   (.log js/console "CURRENT HASH:" (clj->js (model/current-hash-path)))
    (run)))

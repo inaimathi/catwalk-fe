@@ -11,6 +11,17 @@
 (defonce APP-STATE (r/atom {:job-map {}}))
 (defonce VOICES (r/atom []))
 
+(defn current-hash-path []
+  (->>
+   (-> js/window .-location .-hash (str/split #"[#/]"))
+   (filter #(not (empty? %)))
+   (into [])))
+
+(defn hash-path! [path]
+  (set!
+   (-> js/window .-location .-hash)
+   (str "#" (str/join "/" path))))
+
 (defn children-of [job-id]
   (->> @JOB-MAP sort
        (map second)

@@ -90,11 +90,13 @@
 
 (defn -init! [job]
   (reset! CURRENT-CAST job)
+  (model/hash-path! ["blogcast" (:id job)])
   (reset! CURRENT-SCRIPT (->> job :output :script (map-indexed (fn [ix el] [ix el])) (into {})))
   (reset! CURRENT-CHECKS (or (:checks (:output job)) (into [] (repeat (count (:script (:output job))) false))))
   (reset! CURRENT-STITCHED (->> job :output :stitched)))
 
 (defn -close! []
+  (model/hash-path! ["blogcast"])
   (reset! CURRENT-CAST nil)
   (reset! CURRENT-SCRIPT nil)
   (reset! CURRENT-CHECKS nil)
@@ -220,21 +222,24 @@
           "Save"])])))
 
 (defn interface []
-  (if @CURRENT-CAST
-    [edit-interface @CURRENT-CAST]
-    [:table {:class "table table-hover"}
-     [:thead
-      [:tr
-       [:th {:scope "col"} ""]
-       [:th {:scope "col"} ""]
-       [:th {:scope "col"} "id"]
-       [:th {:scope "col"} "status"]
-       [:th {:scope "col"} "input"]
-       [:th {:scope "col"} "output"]]]
-     [:tbody
-      (doall
-       (map
-        (fn [job]
-          ^{:key (str "blogcast-job-interface-" (:id job))}
-          [list-interface job])
-        (->> @model/JOB-MAP sort (map second) reverse (filter #(= "blogcast" (:job_type %))))))]]))
+  (do
+    (if-let [job (get @model/JOB-MAP (-> (model/current-hash-path) second js/parseInt))]
+      (if (not (and @CURRENT-CAST (= (:id job) (:id @CURRENT-CAST))))
+        (-init! job)))
+    (if @CURRENT-CAST [edit-interface @CURRENT-CAST]
+        [:table {:class "table table-hover"}
+         [:thead
+          [:tr
+           [:th {:scope "col"} ""]
+           [:th {:scope "col"} ""]
+           [:th {:scope "col"} "id"]
+           [:th {:scope "col"} "status"]
+           [:th {:scope "col"} "input"]
+           [:th {:scope "col"} "output"]]]
+         [:tbody
+          (doall
+           (map
+            (fn [job]
+              ^{:key (str "blogcast-job-interface-" (:id job))}
+              [list-interface job])
+            (->> @model/JOB-MAP sort (map second) reverse (filter #(= "blogcast" (:job_type %))))))]])))
