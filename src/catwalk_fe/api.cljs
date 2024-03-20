@@ -35,7 +35,9 @@
   (-api-call "/v1/job" callback))
 
 (defn get-job [job-id callback]
-  (-api-call (str "/v1/job/" job-id) callback))
+  (let [url (str "/v1/job/" job-id "?include_children=True")]
+    (.log js/console "URL: " url)
+    (-api-call url callback)))
 
 (defn retry-job [job-id callback]
   (-api-call (str "/v1/job/" job-id) callback :method "PUT"))

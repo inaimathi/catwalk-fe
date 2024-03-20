@@ -11,17 +11,6 @@
 (defonce APP-STATE (r/atom {:job-map {}}))
 (defonce VOICES (r/atom []))
 
-(defn current-hash-path []
-  (->>
-   (-> js/window .-location .-hash (str/split #"[#/]"))
-   (filter #(not (empty? %)))
-   (into [])))
-
-(defn hash-path! [path]
-  (set!
-   (-> js/window .-location .-hash)
-   (str "#" (str/join "/" path))))
-
 (defn children-of [job-id]
   (->> @JOB-MAP sort
        (map second)
@@ -32,3 +21,15 @@
        (map second)
        (filter #(and (= job-id (:parent_job %))
                      (= text (:text (:input %)))))))
+
+(defonce SOCKETS (r/atom []))
+
+(defn socket! [sock]
+  (swap! SOCKETS conj sock)
+  (.log js/console "SOCKETS:" (clj->js @SOCKETS))
+  nil)
+
+(defn sockets-close! []
+  (do
+    (map #(.close %) @SOCKETS)
+    (reset! SOCKETS [])))

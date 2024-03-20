@@ -6,9 +6,11 @@
             [reagent.dom :as rd]
 
             [catwalk-fe.api :as api]
+            [catwalk-fe.util :as util]
             [catwalk-fe.model :as model]))
 
 (def BLOGCAST-KEYMAP {})
+(def FETCHING (r/atom false))
 (def CURRENT-CAST (r/atom nil))
 
 (defn remove-by-ix [vec ix]
@@ -90,13 +92,13 @@
 
 (defn -init! [job]
   (reset! CURRENT-CAST job)
-  (model/hash-path! ["blogcast" (:id job)])
+  (util/hash-path! ["blogcast" (:id job)])
   (reset! CURRENT-SCRIPT (->> job :output :script (map-indexed (fn [ix el] [ix el])) (into {})))
   (reset! CURRENT-CHECKS (or (:checks (:output job)) (into [] (repeat (count (:script (:output job))) false))))
   (reset! CURRENT-STITCHED (->> job :output :stitched)))
 
 (defn -close! []
-  (model/hash-path! ["blogcast"])
+  (util/hash-path! ["blogcast"])
   (reset! CURRENT-CAST nil)
   (reset! CURRENT-SCRIPT nil)
   (reset! CURRENT-CHECKS nil)
@@ -223,7 +225,7 @@
 
 (defn interface []
   (do
-    (if-let [job (get @model/JOB-MAP (-> (model/current-hash-path) second js/parseInt))]
+    (if-let [job (get @model/JOB-MAP (-> (util/current-hash-path) second js/parseInt))]
       (if (not (and @CURRENT-CAST (= (:id job) (:id @CURRENT-CAST))))
         (-init! job)))
     (if @CURRENT-CAST [edit-interface @CURRENT-CAST]
