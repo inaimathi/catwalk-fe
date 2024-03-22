@@ -3,7 +3,10 @@
             [clojure.pprint :as pprint]
 
             [reagent.core :as r]
-            [reagent.dom :as rd]))
+            [reagent.dom :as rd]
+            [alandipert.storage-atom :refer [local-storage]]))
+
+(defonce API-KEY (local-storage (r/atom nil) :api-key))
 
 (defn -form-encoded [m]
   (->> m
@@ -23,9 +26,10 @@
        (clj->js
         (if data
           {:method method
-           :headers {:Content-Type "application/x-www-form-urlencoded"}
+           :headers {:Content-Type "application/x-www-form-urlencoded"
+                     :X-Auth-Token @API-KEY}
            :body data}
-          {:method method})))
+          {:method method :headers {:X-Auth-Token @API-KEY}})))
       (.then #(.json %))
       (.then #(js->clj % :keywordize-keys true))
       (.then callback)))
@@ -63,7 +67,7 @@
      :data (-form-encoded data))))
 
 ;;;;;;;;;; Voices interface
-(defn available-voices [callback] (-api-call "/v0/audio/tts" callback))
+(defn server-info [callback] (-api-call "/v1/info" callback))
 
 (defn blogcast-job [url voice callback]
   (create-job nil "blogcast" {:url url :voice voice :k 1} callback))

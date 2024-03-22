@@ -8,7 +8,8 @@
                  [org.clojure/tools.cli "0.3.5"]
 
                  [cheshire "5.10.0"]
-                 [reagent "1.0.0"]]
+                 [reagent "1.0.0"]
+                 [alandipert/storage-atom "2.0.1"]]
 
   :hooks [leiningen.cljsbuild]
   :plugins [[lein-cljsbuild "1.1.7"]]

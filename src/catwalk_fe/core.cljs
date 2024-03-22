@@ -16,12 +16,17 @@
 
 (defonce SECTION (r/atom (or (-> (util/current-hash-path) first keyword) :blogcast)))
 
+(defn get-initial-state []
+  (api/list-jobs #(reset! model/JOB-MAP (->> % :jobs (map (fn [job] [(:id job) job])) (into {}))))
+  (api/server-info #(reset! model/VOICES (:voices %))))
+
 (defn navbar []
   (let [nav-item (fn [section label]
                    [:li {:class "nav-item"}
                     [:a {:href "#" :class (str "nav-link" (if (= @SECTION section) " active bg-primary rounded text-light" ""))
                          :on-click #(reset! SECTION section)}
-                     label]])]
+                     label]])
+        show-key (r/atom false)]
     (fn []
       [:nav {:class "navbar navbar-expand-lg navbar-light bg-light p-3 sticky-top"}
        [:a {:class "navbar-brand" :href "#"} "Catwalk"]
@@ -30,6 +35,16 @@
         (nav-item :blogcast "Blogcast")
         (nav-item :tts "TTS")
         (nav-item :transcribe "Transcribe")]
+       [:div {:class "input-group"}
+        (if @show-key
+          [:input
+           {:class "form-control" :type "text" :value @api/API-KEY
+            :on-change #(let [new-key (.-value (.-target %))]
+                          (reset! api/API-KEY new-key))}])
+        [:button
+         {:class (str "form-input btn " (if @api/API-KEY "btn-primary" "btn-warning"))
+          :on-click #(swap! show-key not)}
+         "API Key"]]
        (when (= @SECTION :blogcast)
          [bc/toolbar])
        [:span {:class "navbar-text mx-5"} VERSION]])))
@@ -37,11 +52,12 @@
 (defn app []
   [:div {:class "container p-5"}
    [navbar]
-   (case @SECTION
-     :blogcast (bc/interface)
-     :jobs (jobs/interface)
-     :tts (tts/interface)
-     [:div [:h1 (str "TODO - " @SECTION)]])])
+   (when @api/API-KEY
+     (case @SECTION
+       :blogcast (bc/interface)
+       :jobs (jobs/interface)
+       :tts (tts/interface)
+       [:div [:h1 (str "TODO - " @SECTION)]]))])
 
 (defn -key-from-event [e]
   (let [k (.-key e)
@@ -85,8 +101,7 @@
 
 (on-load
  (fn []
-   (api/list-jobs #(reset! model/JOB-MAP (->> % :jobs (map (fn [job] [(:id job) job])) (into {}))))
-   (api/available-voices #(reset! model/VOICES (:voices %)))
+   (get-initial-state)
    (.log js/console "Hello from catwalk-fe")
    (.log js/console "CURRENT HASH:" (clj->js (util/current-hash-path)))
    (run)))
